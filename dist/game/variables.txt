@@ -1,0 +1,9 @@
+coffeY_change = -0.50
+enemySpeed = 0.25
+enemyFallSpeed = 40
+bulletSpeed = 2
+bulletY_change = 3
+ammo = 5
+pammo = 5
+eventtime = 4000
+playerSpeed = 1
