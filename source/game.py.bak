@@ -1,0 +1,320 @@
+import random
+import math
+from visualizer import *
+from variables import *
+
+# intilaze the pygmae
+pygame.init()
+
+screen = pygame.display.set_mode((800, 600))
+
+# Title and icon
+pygame.display.set_caption("Game")
+pygame.display.set_icon(icon)
+
+# Buttons
+pressedB = 0
+
+# Player
+playerX = 370
+playerY = 480
+playerX_change = 0
+
+# Gun
+gunX = playerX + 40
+gunY = playerY
+
+# ammobx-ammo
+ammoboxX = random.randint(0, 735)
+ammoboxY = random.randint(50, 150)
+ammoboxState = "ready"
+# Ready = ready, falling = falling
+
+# Enemy
+enemyImg = []
+enemyX = []
+enemyY = []
+enemyX_change = []
+enemyY_change = []
+number_of_enemys = 6
+enemyHealth = []
+enemyMaxhealth = 1
+# Enemy Bullet
+ebulletX = []
+eBulletY = []
+eBullet_state = "ready"
+
+for i in range(number_of_enemys):
+    enemyImg.append(enemyphoto)
+    enemyX.append(random.randint(0, 735))
+    enemyY.append(random.randint(50, 150))
+    enemyX_change.append(enemySpeed)
+    enemyY_change.append(enemyFallSpeed)
+    eBulletY.append(1000)
+    ebulletX.append(1000)
+    enemyHealth.append(1)
+
+# Bullet
+bulletX = 0
+bulletY = 480
+bulletX_change = 0
+
+# Ready= You cant see the bullet
+# Fire= The bullet is moving
+bullet_state = "ready"
+
+# Score
+score_value = 0
+font = pygame.font.Font('freesansbold.ttf', 32)
+
+text1X = 10
+text1Y = 10
+
+# Ammo
+text2X = 10
+text2Y = 50
+
+# Game Over
+overfont = pygame.font.Font('freesansbold.ttf', 64)
+gameover = 0
+
+
+
+
+
+
+
+def game_over_text():
+    gameover = overfont.render("GAME OVER", True, (255, 255, 255))
+    screen.blit(gameover, (200, 250))
+
+
+def show_score(x, y):
+    score = font.render(f"Score : {score_value}", True, (255, 255, 255))
+    screen.blit(score, (x, y))
+
+
+def show_ammo(x, y):
+    mag = font.render(f"Ammo : {ammo}", True, (255, 255, 255))
+    screen.blit(mag, (x, y))
+
+
+def fire_bullet(x, y):
+    global bullet_state
+    bullet_state = "fire"
+    screen.blit(bulletImg, (x + 16, y))
+
+
+def fire_enemy_bullet(x, y):
+    global e_bullet_state
+
+
+def show_background(x, y):
+    screen.blit(backgroundImg, (x, y))
+
+
+def player(x, y):
+    screen.blit(playerImg, (x, y))
+
+
+def enemy(x, y, i):
+    screen.blit(enemyImg[i], (x, y))
+
+
+def show_gun(gunX, gunY):
+    screen.blit(gunImg, (gunX, gunY))
+
+
+def falling_coffe(x, y):
+    screen.blit(coffeImg, (x, y))
+
+
+def redline(x, y):
+    screen.blit(redlineImg, (x, y))
+
+
+def isCollision(enemyX, enemyY, bulletX, bulletY):
+    distance = math.sqrt(math.pow(enemyX - bulletX, 2) + (math.pow(enemyY - bulletY, 2)))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
+def isCollision2(playerX, playerY, coffeX, coffeY):
+    distance = math.sqrt(math.pow(playerX - coffeX, 2) + math.pow(playerY - coffeY, 2))
+    if distance < 27:
+        return True
+    else:
+        return False
+
+
+time = 0
+activation = []
+for i in range(0, 10):
+    activation.append(0)
+
+# GameLoop
+    running = True
+def play():
+    global time, activation, playerX, playerY, gunX, gunY, running, pressedB, ammo, playerX_change, playerSpeed, bullet_state, bulletX, bulletY, enemySpeed, score_value, enemyMaxhealth, bulletX_change, bulletY_change, ammoboxState, gameover, ammoboxX, ammoboxY, pammo
+    while running:
+        # RGB Red Green Blue
+        screen.blit(backgroundImg, (0,0))
+
+        gunX = playerX + 40
+        gunY = playerY
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+
+            if event.type == pygame.KEYDOWN:
+
+                if event.key == pygame.K_LEFT:
+                    pressedB += 1
+                    playerX_change = -playerSpeed
+                if event.key == pygame.K_RIGHT:
+                    playerX_change = playerSpeed
+                    pressedB += 1
+                if event.key == pygame.K_UP:
+                    if bullet_state == "ready":
+                        if ammo > 0:
+                            bulletX = gunX - 9
+                            fire_bullet(bulletX, gunY)
+                            bulletY = gunY
+                            ammo -= 1
+
+            if event.type == pygame.KEYUP:
+
+                if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
+                    pressedB -= 1
+
+                    if event.key == pygame.K_LEFT:
+                        playerX_change = +playerSpeed
+                    if event.key == pygame.K_RIGHT:
+                        playerX_change = -playerSpeed
+                    if pressedB == 0:
+                        playerX_change = 0
+
+        # Checking Boundries
+        playerX += playerX_change
+        if playerX <= 0:
+            playerX = 0
+        elif playerX > 736:
+            playerX = 736
+
+        # Enemy  Movement
+        for i in range(number_of_enemys):
+            enemyX[i] += enemyX_change[i]
+            if enemyX[i] <= 0:
+                enemyX_change[i] = enemySpeed
+            elif enemyX[i] > 736:
+                enemyX_change[i] = -enemySpeed
+
+            enemyY[i] += enemyY_change[i]
+            if enemyY[i] > 430:
+                for j in range(number_of_enemys):
+                    enemyY[j] = 2000
+                game_over_text()
+                gameover = 1
+                screen.fill("black")
+                break
+
+            # Collision
+            collision = isCollision(enemyX[i], enemyY[i], bulletX, bulletY)
+            if collision:
+                bulletY = 480
+                score_value += 1
+                ammo += 1
+                bullet_state = "ready"
+                enemyHealth[i] -= 1
+                if enemyHealth[i] < 1:
+                    enemyX[i] = random.randint(0, 735)
+                    enemyY[i] = random.randint(50, 150)
+                    enemyHealth[i] = enemyMaxhealth
+
+            enemy(enemyX[i], enemyY[i], i)
+
+        # Bullet Movement
+        if bullet_state == "fire":
+            fire_bullet(bulletX, bulletY)
+            bulletY -= bulletY_change
+
+        if ammoboxState == "falling":
+            if gameover == 0:
+                falling_coffe(ammoboxX, ammoboxY)
+                ammoboxY -= ammoboxY_change
+
+        collision2 = isCollision2(gunX, gunY, ammoboxX, ammoboxY)
+        if collision2:
+            ammoboxState = "ready"
+            ammo += pammo
+            time = 0
+            ammoboxY = -100
+
+        if ammoboxY > 680:
+            if gameover == 0:
+                ammoboxY = -100
+                ammoboxState = "ready"
+                time = 0
+
+        if bulletY <= -30:
+            if gameover == 0:
+                bulletY = 480
+                bullet_state = "ready"
+
+        if time >= eventtime:
+            if ammoboxState != "falling":
+                time = 0
+                ammoboxState = "falling"
+                ammoboxX = random.randint(0, 735)
+                ammoboxY = -30
+
+        if score_value > 10:
+            if activation[0] == 0:
+                pammo = 7
+                bulletY_change = 6
+                activation[0] = 1
+
+        if score_value > 30:
+            if activation[1] == 0:
+                enemyFallSpeed = 0.07
+                activation[1] = 1
+
+        if score_value > 50:
+            if activation[2] == 0:
+                enemyHealth.clear()
+                activation[2] = 1
+                for i in range(number_of_enemys):
+                    enemyMaxhealth = 2
+                    enemyHealth.append(enemyMaxhealth)
+
+        if score_value > 60:
+            if activation[3] == 0:
+                activation[3] = 1
+                playerSpeed = 0.6
+                pammo = 8
+                enemySpeed = 0.3
+
+        if gameover != 1:
+            redline(0, 470)
+            player(playerX, playerY)
+            show_gun(gunX, gunY)
+        else:
+            game_over_text()
+
+        show_score(text1X, text1Y)
+        show_ammo(text2X, text2Y)
+        pygame.display.update()
+        time += 1
+
+def main_menu():
+    pygame.display.set_caption("Menu")
+    while True:
+        show_background(0, 0)
+
+
+
+
+play()

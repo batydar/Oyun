@@ -1,0 +1,9 @@
+ammoboxY_change = -0.50
+enemySpeed = 0.25
+enemyFallSpeed = 0.05
+bulletSpeed = 2
+bulletY_change = 4
+ammo = 5
+pammo = 5
+eventtime = 4000
+playerSpeed = 0.5
