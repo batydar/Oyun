@@ -31,7 +31,6 @@ gunY = playerY
 rGunX = playerX + 40
 rGunY = playerY
 
-
 # ammobx-ammo
 ammoboxX = random.randint(0, 735)
 ammoboxY = random.randint(50, 150)
@@ -45,7 +44,7 @@ enemyX_change = []
 enemyY_change = []
 number_of_enemys = 6
 enemyHealth = []
-enemyMaxhealth = 1
+enemyMaxHealth = 1
 # Enemy Bullet
 ebulletX = []
 eBulletY = []
@@ -64,6 +63,17 @@ for i in range(number_of_enemys):
 bulletX = 0
 bulletY = 480
 bulletX_change = 0
+
+# rGun Bullet
+rbulletX = []
+rbulletY = []
+rBullet_state = []
+for i in range(6):
+    rbulletX.append(0)
+    rbulletY.append(0)
+    rBullet_state.append("ready")
+
+rmag = 6
 
 # Ready= You cant see the bullet
 # Fire= The bullet is moving
@@ -105,7 +115,7 @@ for i in range(6):
     bulletTime.append(0)
     turretBulletImg.append(bulletImg)
     turretBullet_state.append("ready")
-    turretBulletYchange.append(3)
+    turretBulletYchange.append(2)
     turretBulletX.append(0)
     turretBulletY.append(0)
 
@@ -118,7 +128,6 @@ def GameOverDef():
     for j in range(number_of_enemys):
         enemyY[j] = 2000
     game_over_text()
-    gameover = 1
     screen.fill("black")
 
 
@@ -149,6 +158,16 @@ def fire_bullet(x, y):
     screen.blit(bulletImg, (x + 16, y))
 
 
+def fire_rbullet(x, y):
+    global rBullet_state
+    state = 0
+    for i in range(6):
+        if state!=1:
+            if rBullet_state[i] == "ready":
+                rBullet_state[i]="fire"
+                state = 1
+
+
 def showTurretAmmo(i):
     screen.blit(turretBulletImg[i], (turretBulletX[i], turretBulletY[i]))
 
@@ -176,6 +195,10 @@ def enemy(x, y, i):
 
 def show_gun(gunX, gunY):
     screen.blit(gunImg, (gunX, gunY))
+
+
+def show_rgun(rGunX, rGunY):
+    screen.blit(gun2Img, (rGunX, rGunY))
 
 
 def falling_coffe(x, y):
@@ -217,8 +240,11 @@ def isCollision4(TurretBulletX, TurretBulletY, gunX, gunY):
     else:
         return False
 
-guntype = "normal" # normal X, r-gun O, shotgun ?, uzi ?
+
+guntype = "normal"  # normal X, r-gun O, shotgun ?, uzi ?
 time = 0
+timeractivate = 0
+rbtimer = 0
 activation = []
 for i in range(0, 10):
     activation.append(0)
@@ -226,9 +252,11 @@ for i in range(0, 10):
 # GameLoop
 running = True
 
+2
+
 
 def play():
-    global turretTime, guntype, rgunX, rGunY, turretBulletY, turretBulletX, turretBulletYchange, turretY, turretX, turret_state, time, enemyFallSpeed, activation, playerX, playerY, gunX, gunY, running, pressedB, ammo, playerX_change, playerSpeed, bullet_state, bulletX, bulletY, enemySpeed, score_value, enemyMaxhealth, bulletX_change, bulletY_change, ammoboxState, gameover, ammoboxX, ammoboxY, pammo
+    global turretTime, rmag, rbtimer, rbulletX, rbulletY, timeractivate, guntype, rGunX, rGunY, turretBulletY, turretBulletX, turretBulletYchange, turretY, turretX, turret_state, time, enemyFallSpeed, activation, playerX, playerY, gunX, gunY, running, pressedB, ammo, playerX_change, playerSpeed, bullet_state, bulletX, bulletY, enemySpeed, score_value, enemyMaxHealth, bulletX_change, bulletY_change, ammoboxState, gameover, ammoboxX, ammoboxY, pammo
     while running:
         # RGB Red Green Blue
         screen.fill((0, 0, 0))
@@ -236,7 +264,7 @@ def play():
         gunX = playerX
         gunY = playerY
         rGunX = playerX
-        rgunY = playerY
+        rGunY = playerY
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -259,14 +287,12 @@ def play():
                                 bulletY = gunY
                                 ammo -= 1
                     if guntype == "r-gun":
-                        print("r-gun")
+                        fire_rbullet(rbulletX, rbulletY)
 
                 if event.key == pygame.K_1:
                     guntype = "normal"
                 if event.key == pygame.K_2:
                     guntype = "r-gun"
-
-
 
             if event.type == pygame.KEYUP:
 
@@ -298,6 +324,7 @@ def play():
             enemyY[i] += enemyY_change[i]
             if enemyY[i] > 430:
                 GameOverDef()
+                gameover = 1
                 break
 
             # Collision
@@ -311,7 +338,7 @@ def play():
                 if enemyHealth[i] < 1:
                     enemyX[i] = random.randint(0, 735)
                     enemyY[i] = random.randint(50, 150)
-                    enemyHealth[i] = enemyMaxhealth
+                    enemyHealth[i] = enemyMaxHealth
 
             enemy(enemyX[i], enemyY[i], i)
 
@@ -339,17 +366,16 @@ def play():
                     turretY[i] = random.randint(50, 150)
                     turret_state[i] = "ready"
 
-
-                if bulletTime[i] >= 3000:
+                if bulletTime[i] >= 4000:
                     turretBulletX[i] = turretX[i] + 16
                     if turret_state[i] == "placed":
                         if turretBullet_state[i] == "ready":
                             turretBulletY[i] = turretY[i]
-                            bulletTime[i] = 1500
+                            bulletTime[i] = 0
                             turretFire(i)
 
-                if turretBulletY[i]>1000:
-                    turretBullet_state[i]="ready"
+                if turretBulletY[i] > 1000:
+                    turretBullet_state[i] = "ready"
 
                 if turretBullet_state[i] == "fire":
                     turretBulletY[i] += turretBulletYchange[i]
@@ -357,9 +383,7 @@ def play():
                     collision4 = isCollision4(turretBulletX[i], turretBulletY[i], gunX, gunY)
                     if collision4:
                         GameOverDef()
-                        gameover=1
-
-
+                        gameover = 1
 
         # Bullet Movement
         if bullet_state == "fire":
@@ -407,13 +431,13 @@ def play():
                 enemyFallSpeed += 0.01
                 activation[1] = 1
 
-        if score_value > 50:
+        if score_value > 40:
             if activation[2] == 0:
                 enemyHealth.clear()
                 activation[2] = 1
                 for i in range(number_of_enemys):
-                    enemyMaxhealth = 2
-                    enemyHealth.append(enemyMaxhealth)
+                    enemyMaxHealth = 2
+                    enemyHealth.append(enemyMaxHealth)
 
         if score_value > 60:
             if activation[3] == 0:
@@ -421,6 +445,9 @@ def play():
                 playerSpeed = 0.6
                 pammo = 8
                 enemySpeed = 0.3
+                turretBulletYchange.clear()
+                for i in range(6):
+                    turretBulletYchange.append(3)
 
         if score_value > 70:
             if activation[4] == 0:
@@ -434,21 +461,26 @@ def play():
                 enemyHealth.clear()
                 activation[5] = 1
                 for i in range(number_of_enemys):
-                    enemyMaxhealth = 3
-                    enemyHealth.append(enemyMaxhealth)
+                    enemyMaxHealth = 3
+                    enemyHealth.append(enemyMaxHealth)
 
         if score_value > 150:
             if activation[6] == 0:
                 enemyHealth.clear()
                 activation[6] = 1
                 for i in range(number_of_enemys):
-                    enemyMaxhealth = 3
-                    enemyHealth.append(enemyMaxhealth)
+                    enemyMaxHealth = 3
+                    enemyHealth.append(enemyMaxHealth)
 
         if gameover != 1:
             redline(0, 470)
             player(playerX, playerY)
-            show_gun(gunX, gunY)
+            if guntype == "normal":
+                show_gun(gunX, gunY)
+            elif guntype == "r-gun":
+                show_rgun(rGunX, rGunY)
+
+
 
         else:
             game_over_text()
@@ -457,6 +489,7 @@ def play():
         show_ammo(text2X, text2Y)
         pygame.display.update()
         time += 1
+
 
 
 def main_menu():

@@ -7,3 +7,4 @@ ammo = 5
 pammo = 5
 eventtime = 4000
 playerSpeed = 0.5
+rbulletY_change = 4
